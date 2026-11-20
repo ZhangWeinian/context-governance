@@ -37,6 +37,15 @@ def count_recent(state_text: str) -> int:
             break
     return n
 
+def is_loopback_ipport(v: str) -> bool:
+    import ipaddress
+    host = v.rsplit(":", 1)[0]
+    try:
+        return ipaddress.ip_address(host).is_loopback
+    except ValueError:
+        return host in {"localhost", "::1"}
+
+
 def parse_ids(raw) -> set:
     """把 `D-0018` / `[18,19]` / `18` 统一成 {D-0018, ...}。"""
     if raw is None:
@@ -120,6 +129,8 @@ def main() -> int:
     candidates += sorted((root / "NOTES").glob("*.md"))
     for p in candidates:
         for v in set(ipre.findall(p.read_text(encoding="utf-8", errors="ignore"))):
+            if is_loopback_ipport(v):
+                continue
             seen.setdefault(v, set()).add(p.name)
     for v, files in sorted(seen.items()):
         if "AGENTS.md" in files and len(files) > 1:
@@ -131,6 +142,23 @@ def main() -> int:
             errors.append(f"NOTES/{p.name} 属“回复式”命名，应合并进主题文件")
         elif re.search(r"-(handoff|review)-?\d*$", p.stem):
             hints.append(f"NOTES/{p.name} 是阶段性交接/评审，后续应并入主题文件")
+
+    # R7 本仓 SCHEMA 只写差异，通用规则在 governance/SCHEMA.md
+    schema = root / "SCHEMA.md"
+    if schema.exists():
+        stext = schema.read_text(encoding="utf-8")
+        slines = len(stext.splitlines())
+        smax = 40
+        try:
+            import tomllib
+            bpath = Path(__file__).resolve().parents[1] / "budgets.toml"
+            smax = int(tomllib.loads(bpath.read_text()).get("schema", {}).get("max_lines", 40))
+        except Exception:
+            pass
+        if "governance/SCHEMA.md" not in stext:
+            errors.append("SCHEMA.md 未指向 governance/SCHEMA.md（通用规则应在治理仓，本仓只写差异）")
+        if slines > smax:
+            errors.append(f"SCHEMA.md 有 {slines} 行，超过 schema.max_lines={smax}；通用内容应在 governance/SCHEMA.md")
 
     for h in hints:
         print(f"HINT  {h}")

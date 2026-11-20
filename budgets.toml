@@ -13,3 +13,6 @@ ttl_hours = 24
 
 [index]
 max_bytes = 12288
+
+[schema]
+max_lines = 40
