@@ -1,0 +1,15 @@
+# context 2.0 预算：所有“数字”只在这里写一次，SCHEMA 只引用本文件。
+[files]
+notes_max_lines   = 300
+notes_max_bytes   = 20480
+projects_max_lines = 300
+decisions_max_lines = 220
+
+[state]
+recent_max = 6
+
+[lanes]
+ttl_hours = 24
+
+[index]
+max_bytes = 12288

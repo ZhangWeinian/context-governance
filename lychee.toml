@@ -1,0 +1,3 @@
+offline = true
+max_concurrency = 8
+exclude_path = ["node_modules", ".git", "reports"]

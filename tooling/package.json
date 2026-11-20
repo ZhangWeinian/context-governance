@@ -1,0 +1,7 @@
+{
+  "name": "ctx-governance-tooling",
+  "private": true,
+  "devDependencies": {
+    "markdownlint-cli2": "0.20.0"
+  }
+}
