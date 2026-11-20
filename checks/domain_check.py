@@ -86,20 +86,10 @@ def main() -> int:
         if n > limit:
             errors.append(f"STATE.recent 有 {n} 条，超过预算 {limit}")
 
-    # R3 车道租约
-    ttl_h = int(budgets.get("lanes", {}).get("ttl_hours", 24))
-    now = int(time.time())
-    for p in sorted((root / "LANES").glob("*.yaml")):
-        text = p.read_text(encoding="utf-8")
-        m = re.search(r"(?m)^lease:\s*(\d+)\s*$", text)
-        if m and int(m.group(1)) < now:
-            hours = (now - int(m.group(1))) / 3600
-            hints.append(f"{p.name} 租约已过期 {hours:.1f}h（lease={m.group(1)}），需 ctx-claim --takeover 或删除")
-        m2 = re.search(r"(?m)^updated:\s*(\d{4}-\d{2}-\d{2})", text)
-        if m2:
-            age = (time.time() - time.mktime(time.strptime(m2.group(1), "%Y-%m-%d"))) / 86400
-            if age > ttl_h / 24:
-                hints.append(f"{p.name} 已 {age:.1f} 天未更新（预算 {ttl_h/24:.0f} 天）")
+    # R3 车道：已迁 GitHub Issues；LANES/ 残留只提示
+    lanes = root / "LANES"
+    if lanes.is_dir() and any(lanes.glob("*.yaml")):
+        hints.append("LANES/ 已废弃（车道在 GitHub Issues，`lane list`），确认无遗漏后 git rm -r LANES")
 
     # R4 OPEN 归属
     openf = root / "OPEN.yaml"
