@@ -143,6 +143,12 @@ def main() -> int:
         elif re.search(r"-(handoff|review)-?\d*$", p.stem):
             hints.append(f"NOTES/{p.name} 是阶段性交接/评审，后续应并入主题文件")
 
+    # R8 ADR 编号方案：D-00NN（两位），四位数 >= 0100 视为历史异常
+    for fp in sorted((root / "DECISIONS").glob("[0-9][0-9][0-9][0-9]-*.md")):
+        num = int(fp.name[:4])
+        if num >= 100:
+            errors.append(f"DECISIONS/{fp.name} 编号 {num:04d} 超出 D-00NN 方案；adr new 会按 max+1 续号，请改用 ~/profile/bin/adr 或先归档该篇")
+
     # R7 本仓 SCHEMA 只写差异，通用规则在 governance/SCHEMA.md
     schema = root / "SCHEMA.md"
     if schema.exists():

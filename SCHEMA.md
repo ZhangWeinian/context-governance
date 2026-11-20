@@ -116,9 +116,13 @@ ctx-open done <O-NNN> "<说明>"
 ctx-open block <O-NNN> "<原因>"
 ctx-open list [open|resolved|all]
 ctx-open show <O-NNN>
+# 一次改多条（单次加锁、单提交），字段限 question/status/resolution/project
+echo '[{"id":"O-006","project":"swarm-service"},{"id":"O-007","status":"resolved","resolution":"…"}]' \
+  | ctx-open batch --dry-run
 ```
 
 - 内部 `flock` 加锁；只提交 `OPEN.yaml` 这一个文件；编号与字段由脚本保证，`ctx-lint` 再独立校验。
+- 默认根由 cwd 推断：显式 `CTX_ROOT` > 当前目录（有 `OPEN.yaml` + `SCHEMA.md`）> `~/profile/context`；在 workspace 里裸调不会误写 profile。
 
 ## 车道（GitHub Issues）
 
@@ -146,7 +150,9 @@ lane list | lane show N | lane claim N | lane release N
 - 路径 `DECISIONS/NNNN-slug.md`，front matter：`id / title / status / date / updated / tags / links`。
 - 正文标题：`Context and Problem Statement`、`Considered Options`、`Decision Outcome`、`### Consequences`、`More Information`。
 - 关系：`supersedes: [18]`、`superseded-by: [22]`（数字数组），双向必须成对；`adr check` 与 `ctx-domain` 都查。
-- 新建：`adr new "<english-slug-title>" --dir DECISIONS`，再改 `id: D-00NN`。标题用英文（adrinaline 只对 ASCII 造文件名）。
+- 新建：`adr new "<english-slug-title>" --dir DECISIONS`。标题用英文（adrinaline 只对 ASCII 造文件名）。
+- **必须走 `~/profile/bin/adr`**（PATH 最前，覆盖 uv 装的原版）：`new` 前按 `max(<100 的编号)+1` 选号并跳过已占用，生成后重命名 + 写回 `id: D-00NN`；其余子命令透传。原版只按全局 max+1 续号，遇到 0100 这类异常编号会产出 0101。
+- `DECISIONS/` 里编号 ≥0100 属异常，`ctx-domain` **R8** 直接 ERROR；历史异常请归档到 `DECISIONS/archive/` 而不是 renumber。
 - 编号允许缺口，不 renumber（会让 `D-00NN` 引用失效）；number-gap 属预期 warning。
 
 ## 读写边界

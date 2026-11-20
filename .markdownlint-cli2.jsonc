@@ -1,6 +1,7 @@
 {
   "ignores": [
     "governance/tooling/node_modules/**",
+    "**/node_modules/**",
     "reports/**"
   ],
   "config": {
