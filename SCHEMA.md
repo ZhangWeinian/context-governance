@@ -151,7 +151,7 @@ lane list | lane show N | lane claim N | lane release N
 - 正文标题：`Context and Problem Statement`、`Considered Options`、`Decision Outcome`、`### Consequences`、`More Information`。
 - 关系：`supersedes: [18]`、`superseded-by: [22]`（数字数组），双向必须成对；`adr check` 与 `ctx-domain` 都查。
 - 新建：`adr new "<english-slug-title>" --dir DECISIONS`。标题用英文（adrinaline 只对 ASCII 造文件名）。
-- **必须走 `~/profile/bin/adr`**（PATH 最前，覆盖 uv 装的原版）：`new` 前按 `max(<100 的编号)+1` 选号并跳过已占用，生成后重命名 + 写回 `id: D-00NN`；其余子命令透传。原版只按全局 max+1 续号，遇到 0100 这类异常编号会产出 0101。
+- **必须走 `~/profile/context/bin/ctx-adr`**（context 级工具，显式全路径调用）：`new` 前按 `max(<100 的编号)+1` 选号并跳过已占用，生成后重命名 + 写回 `id: D-00NN`（模板无 id 时插在 `status:` 前）；其余子命令透传。`~/profile/bin/adr` 只是 3 行垫片 `exec ctx-adr "$@"`，保证裸调 `adr` 也安全。原版 adrinaline 只按全局 max+1 续号，遇到 0100 这类异常编号会产出 0101。
 - `DECISIONS/` 里编号 ≥0100 属异常，`ctx-domain` **R8** 直接 ERROR；历史异常请归档到 `DECISIONS/archive/` 而不是 renumber。
 - 编号允许缺口，不 renumber（会让 `D-00NN` 引用失效）；number-gap 属预期 warning。
 
