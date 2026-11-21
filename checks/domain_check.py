@@ -98,7 +98,7 @@ def main() -> int:
     # R3 车道：已迁 GitHub Issues；LANES/ 残留只提示
     lanes = root / "LANES"
     if lanes.is_dir() and any(lanes.glob("*.yaml")):
-        hints.append("LANES/ 已废弃（车道在 GitHub Issues，`lane list`），确认无遗漏后 git rm -r LANES")
+        hints.append("LANES/ 已废弃（车道在 GitHub Issues，`ctx-lane list`），确认无遗漏后 git rm -r LANES")
 
     # R4 OPEN 归属
     openf = root / "OPEN.yaml"

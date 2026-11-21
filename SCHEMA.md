@@ -138,20 +138,20 @@ echo '[{"id":"O-006","project":"swarm-service"},{"id":"O-007","status":"resolved
 | 过期接管 | 评论 `takeover by … · 原持有者 …`（一律显式） |
 
 ```bash
-lane list | lane show N | lane claim N | lane release N
+ctx-lane list | ctx-lane show N | ctx-lane claim N | ctx-lane release N
 ```
 
 - 开工：claim 自己的 issue；命中别人在跑的车道直接读，不必问。
 - 「下一步」写项目页，不写 issue 标题。
-- **不要新建 `LANES/*.yaml`**：YAML 车道 2026-11-20 已停用，`ctx-claim`/`ctx-release` 只报错指向 `lane`。
+- **不要新建 `LANES/*.yaml`**：YAML 车道 2026-11-20 已停用，`ctx-claim`/`ctx-release` 只报错指向 `ctx-lane`。
 
 ## 决策格式（MADR 4.0 + adrinaline）
 
 - 路径 `DECISIONS/NNNN-slug.md`，front matter：`id / title / status / date / updated / tags / links`。
 - 正文标题：`Context and Problem Statement`、`Considered Options`、`Decision Outcome`、`### Consequences`、`More Information`。
 - 关系：`supersedes: [18]`、`superseded-by: [22]`（数字数组），双向必须成对；`adr check` 与 `ctx-domain` 都查。
-- 新建：`adr new "<english-slug-title>" --dir DECISIONS`。标题用英文（adrinaline 只对 ASCII 造文件名）。
-- **必须走 `~/profile/context/bin/ctx-adr`**（context 级工具，显式全路径调用）：`new` 前按 `max(<100 的编号)+1` 选号并跳过已占用，生成后重命名 + 写回 `id: D-00NN`（模板无 id 时插在 `status:` 前）；其余子命令透传。`~/profile/bin/adr` 只是 3 行垫片 `exec ctx-adr "$@"`，保证裸调 `adr` 也安全。原版 adrinaline 只按全局 max+1 续号，遇到 0100 这类异常编号会产出 0101。
+- 新建：**只用 `~/profile/context/bin/ctx-adr new "<english-slug-title>" --dir DECISIONS`**（context 级工具，显式全路径）。它在 `new` 前按 `max(<100 的编号)+1` 选号并跳过已占用，生成后重命名 + 写回 `id: D-00NN`（模板无 id 时插在 `status:` 前）；其余子命令透传。
+- 裸调 `adr` 是 adrinaline 原版，**没有编号防护**（只按全局 max+1 续号，遇 0100 会产出 0101），不要用它新建；`~/profile/bin` 里也不再放假 `adr` 垫片（用户 2026-11-21 明确：全局 bin 只放他批准的命令）。
 - `DECISIONS/` 里编号 ≥0100 属异常，`ctx-domain` **R8** 直接 ERROR；历史异常请归档到 `DECISIONS/archive/` 而不是 renumber。
 - 编号允许缺口，不 renumber（会让 `D-00NN` 引用失效）；number-gap 属预期 warning。
 
